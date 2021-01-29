@@ -43,11 +43,12 @@ def party_menu():
                 key = int(selection)
 
                 if not (1 <= key <= size):
-                    raise ValueError
+                    raise ValueError("Invalid selection")
 
                 return pkmns[key]
 
             except Exception as e:
+                print(e)
                 print("Invalid input...")
 
     pkmn = select_pokemon()
@@ -59,7 +60,6 @@ def party_menu():
 
 def get_team_size():
     return savefile.value_at(savefile.section_table["TEAM_ITEMS"] + PARTY_TABLE["TEAM_SIZE"], 2)
-
 
 def get_team_pokemon_at_index(index):
     offset = savefile.section_table["TEAM_ITEMS"] + PARTY_TABLE["TEAM_LIST"]

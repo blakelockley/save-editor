@@ -82,12 +82,25 @@ import savefile
 def pokemon_menu(pkmn):
     print(pkmn)
 
+    species = input(f"Species: ({pkmn.get_species()}): ")
+    if species:
+        species_value = int(species)
+        new_species = SPECIES_LOOKUP[species_value]
+
+        print(f"Updating species to: {new_species}...")
+        pkmn.set_species(species_value)
+        
+        pkmn.write_encrypted_data()
+        pkmn.set_checksum()
+
+
 class Pokemon():
 
     def __init__(self, offset):
         self.offset = offset        
         self.data_table = self.get_data_offset_table()
         self.decryption_key = self.get_decryption_key()
+        self.decrypted_data = self.get_decrypted_data()
 
     def __str__(self):
         return f"{self.get_nickname()} ({self.get_species()})"
@@ -113,29 +126,80 @@ class Pokemon():
 
         return p_value ^ ot_id
 
-    @property
-    def growth_table(self):
-        return self.offset + POKEMON_TABLE["DATA"] + self.data_table["G"]
+    def get_decrypted_data(self):
+        bs = []
+        offset = self.offset + POKEMON_TABLE["DATA"]
+
+        for index in range(offset, offset + 48, 4):
+            decrypted_values = self.decryption_key ^ savefile.value_at(index, 4)
+            decrypted_bytes = decrypted_values.to_bytes(4, "little")
+
+            bs.extend(decrypted_bytes)
+
+        return bs
+
+    def write_encrypted_data(self):
+        offset = self.offset + POKEMON_TABLE["DATA"]
+
+        for index in range(0, 48, 4):
+            bs = self.decrypted_data[index : index + 4]
+            values = int.from_bytes(bs, byteorder="little")
+
+            encrypted_values = self.decryption_key ^ values
+            encrypted_bytes = encrypted_values.to_bytes(4, "little")
+
+            savefile.set_bytes_at(offset + index, encrypted_bytes)
 
     @property
-    def attacks_table(self):
-        return self.offset + POKEMON_TABLE["DATA"] + self.data_table["A"]
+    def growth_data_offset(self):
+        return self.data_table["G"]
 
     @property
-    def ev_conditions_table(self):
-        return self.offset + POKEMON_TABLE["DATA"] + self.data_table["E"]
+    def attacks_data_offset(self):
+        return self.data_table["A"]
 
     @property
-    def misc_table(self):
-        return self.offset + POKEMON_TABLE["DATA"] + self.data_table["M"]
+    def ev_conditions_data_offset(self):
+        return self.data_table["E"]
+
+    @property
+    def misc_data_offset(self):
+        return self.data_table["M"]
     
     def get_species(self):
-        offset = self.growth_table + GROWTH_TABLE["SPECIES"]
-        encrypted = savefile.value_at(offset, 4)
-        decrypted = encrypted ^ self.decryption_key
-
-        bs = decrypted.to_bytes(4, "little")
-        value = int.from_bytes(bs[0:2], "little")
+        offset = self.growth_data_offset + GROWTH_TABLE["SPECIES"]
+        
+        bs = self.decrypted_data[offset : offset + 2]
+        value = int.from_bytes(bs, "little")
 
         return SPECIES_LOOKUP[value]
+    
+    def set_species(self, value):
+        bs = value.to_bytes(2, "little")
+        offset = self.growth_data_offset + GROWTH_TABLE["SPECIES"]
+        
+        for index in range(len(bs)):
+            self.decrypted_data[offset + index] = bs[index]
+
+    def get_checksum(self):
+        return savefile.value_at(self.offset + POKEMON_TABLE["CHECKSUM"], 2)
+
+    def set_checksum(self):
+        checksum = self.calculate_checksum()
+        savefile.set_value_at(self.offset + POKEMON_TABLE["CHECKSUM"], checksum, 2)
+
+    def calculate_checksum(self):
+        # Initialize a 16-bit checksum variable to zero.
+        result = 0
+
+        # Read 2 bytes at a time as 16-bit word (little-endian) and add it to the variable.    
+        for index in range(0, 48, 2):
+            bs = self.decrypted_data[index : index + 2]
+            value = int.from_bytes(bs, byteorder="little")
+            
+            result += value
+            result %= 2**16 # 16-bit word
+        
+        # This new 16-bit value is the checksum.
+        return result
 

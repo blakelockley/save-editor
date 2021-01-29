@@ -3,8 +3,8 @@ import savefile
 from trainer import print_trainer_summary, trainer_menu
 from party import party_menu
 
-
-coming_soon = lambda: print("Coming soon...")
+def clear():
+    print(chr(27) + "[2J")
 
 def main(args):
     filename = args[1]
@@ -23,8 +23,8 @@ def main(args):
         options = [
             ("Trainer Info", trainer_menu),
             ("Party Pokemon", party_menu),
-            ("Box Pokemon", coming_soon),
-            ("Items", coming_soon),
+            ("Box Pokemon", lambda: print("...")),
+            ("Items", lambda: print("...")),
         ]
 
         for (index, option) in enumerate(options):
@@ -36,7 +36,7 @@ def main(args):
         while True:
             try:
                 selection = input("> ")
-                print()
+                clear()
                 
                 if (selection == "q"):
                     should_continue = False
@@ -54,6 +54,7 @@ def main(args):
                 break
             
             except Exception as e:
+                print(e)
                 print("Invalid input...")
 
     print("Saving changes...")
