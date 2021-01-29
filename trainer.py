@@ -38,6 +38,46 @@ VERSION_TABLE = {
 from encoding import CHAR_TO_BYTE, BYTE_TO_CHAR
 import savefile
 
+def trainer_menu():
+    name = get_trainer_name()
+    new_name = input(f"Set name ({name}): ")
+    if len(new_name) > 0:
+        print("Changing name to...", new_name)
+        set_trainer_name(new_name)
+    
+    gender = get_trainer_gender()
+    new_gender = input(f"Set gender M/F ({gender}): ")
+    if len(new_gender) > 0:
+        print("Changing gender to...", new_gender)
+        set_trainer_gender(new_gender)
+    
+    id = get_trainer_id()
+    public_id = int.from_bytes(id[0:2], "little")
+    secret_id = int.from_bytes(id[2:4], "little")
+
+    new_id = input(f"Set ID SID ({public_id} {secret_id}): ")
+    split_ids = new_id.split(" ")
+
+    if len(split_ids) == 2:
+        new_public_id = split_ids[0]
+        new_secret_id = split_ids[1]
+        
+        print("Changing ID SID to...", new_public_id, new_secret_id)
+        set_trainer_id(new_public_id, new_secret_id)
+
+
+def print_trainer_summary():
+    name = get_trainer_name()
+    gender = get_trainer_gender()
+    
+    print("Trainer Name:", name + f" ({gender})")
+    
+    id = get_trainer_id()
+    public_id = int.from_bytes(id[0:2], "little")
+    secret_id = int.from_bytes(id[2:4], "little")
+    print("Trainer ID:", public_id, secret_id)
+
+
 
 def get_trainer_name():
     offset_table = VERSION_TABLE[savefile.version]
@@ -85,3 +125,14 @@ def set_trainer_gender(value):
     offset = savefile.section_table["TRAINER_INFO"] + VERSION_TABLE[savefile.version]["PLAYER_GENDER"]
     return savefile.set_bytes_at(offset, [b])
 
+
+def get_trainer_id():
+    offset_table = VERSION_TABLE[savefile.version]
+    section_offset = savefile.section_table["TRAINER_INFO"]
+
+    bs = savefile.bytes_at(section_offset + offset_table["TRAINER_ID"], 4)
+    return bs
+
+
+def set_trainer_id(new_public_id, new_secret_id):
+    pass
