@@ -1,6 +1,9 @@
 import savefile
 
 from trainer import print_trainer_summary, trainer_menu
+from party import party_menu
+
+
 coming_soon = lambda: print("Coming soon...")
 
 def main(args):
@@ -19,7 +22,7 @@ def main(args):
         
         options = [
             ("Trainer Info", trainer_menu),
-            ("Party Pokemon", coming_soon),
+            ("Party Pokemon", party_menu),
             ("Box Pokemon", coming_soon),
             ("Items", coming_soon),
         ]
@@ -51,7 +54,6 @@ def main(args):
                 break
             
             except Exception as e:
-                print(e)
                 print("Invalid input...")
 
     print("Saving changes...")
