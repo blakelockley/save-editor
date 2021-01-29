@@ -12,51 +12,24 @@ FRLG_PARTY_TABLE = {
 import savefile
 from pokemon import Pokemon, pokemon_menu
 
+from menu import Menu
+
 def party_menu():
 
     size = get_team_size()
+    print("Party size:", size, "\n")
     
-    print("Party size:", size)
-
-    print()
-    print("Which pokemon would you like to edit?")
+    menu = Menu("Which pokemon would you like to edit?")
 
     pkmns = {}
     for i in range(size):
-        key = i + 1
-        
         pkmn = get_team_pokemon_at_index(i)
-        pkmns[key] = pkmn
-        
-        print(f"{key}) {pkmn.get_nickname()}")
+        pkmns[i] = pkmn
 
-    print("q) Cancel")
-
-    def select_pokemon():
-        while True:
-            selection = input("> ")
-
-            if selection == "q":
-                return None
-
-            try:
-                key = int(selection)
-
-                if not (1 <= key <= size):
-                    raise ValueError("Invalid selection")
-
-                return pkmns[key]
-
-            except Exception as e:
-                print(e)
-                print("Invalid input...")
-
-    pkmn = select_pokemon()
-    if not pkmn:
-        return
-
-    print()
-    pokemon_menu(pkmn)
+        menu.add_option(pkmn.get_nickname(), i)
+    
+    menu.set_callback(lambda s: pokemon_menu(pkmns[int(s)]))
+    menu.show()
 
 def get_team_size():
     return savefile.value_at(savefile.section_table["TEAM_ITEMS"] + PARTY_TABLE["TEAM_SIZE"], 2)

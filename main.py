@@ -1,10 +1,10 @@
 import savefile
 
-from trainer import print_trainer_summary, trainer_menu
-from party import party_menu
+from menu import Menu
 
-def clear():
-    print(chr(27) + "[2J")
+from party import party_menu
+from trainer import print_trainer_summary, trainer_menu
+
 
 def main(args):
     filename = args[1]
@@ -13,50 +13,14 @@ def main(args):
     savefile.load(filename)
     
     print_trainer_summary()
+    input("> [Enter] ")
 
-    should_continue = True
-    while should_continue:
-        
-        print()
-        print("What would you like to edit?")
-        
-        options = [
-            ("Trainer Info", trainer_menu),
-            ("Party Pokemon", party_menu),
-            ("Box Pokemon", lambda: print("...")),
-            ("Items", lambda: print("...")),
-        ]
-
-        for (index, option) in enumerate(options):
-            text, _ = option
-            print(f"{index + 1}) {text}")
-        
-        print("q) Save and Quit")
-
-        while True:
-            try:
-                selection = input("> ")
-                clear()
-                
-                if (selection == "q"):
-                    should_continue = False
-                    break
-
-                index = int(selection) - 1
-                if not (0 <= index < len(options)):
-                    raise ValueError
-            
-                text, fn = options[index]
-
-                print(text)
-                fn()
-
-                break
-            
-            except Exception as e:
-                print(e)
-                print("Invalid input...")
-
+    main_menu = Menu("What would you like to edit?")
+    main_menu.add_option("Trainer Info", trainer_menu.show)
+    main_menu.add_option("Party Pokemon", party_menu)
+    main_menu.set_quit_text("[Save and Quit]")
+    main_menu.show()
+    
     print("Saving changes...")
     savefile.write(filename)
 
