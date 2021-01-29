@@ -39,32 +39,6 @@ from menu import Menu
 from encoding import CHAR_TO_BYTE, BYTE_TO_CHAR
 import savefile
 
-def edit_name():
-    new_name = input(f"Set name ({get_trainer_name()}): ")
-    if len(new_name) > 0:
-        print("Changing name to...", new_name)
-        set_trainer_name(new_name)
-        
-def edit_gender():
-    gender = get_trainer_gender()
-    new_gender = input(f"Set gender M/F ({gender}): ")
-    if len(new_gender) > 0:
-        print("Changing gender to...", new_gender)
-        set_trainer_gender(new_gender)
-    
-def edit_id():
-    public_id, secret_id = get_trainer_id()
-
-    new_id = input(f"Set ID SID ({public_id} {secret_id}): ")
-    split_ids = new_id.split(" ")
-
-    if len(split_ids) == 2:
-        new_public_id = int(split_ids[0])
-        new_secret_id = int(split_ids[1])
-        
-        print("Changing ID SID to...", new_public_id, new_secret_id)
-        set_trainer_id(new_public_id, new_secret_id)
-
 
 def print_trainer_summary():
     name = get_trainer_name()
@@ -144,7 +118,36 @@ def set_trainer_id(new_public_id, new_secret_id):
     return savefile.bytes_at(section_offset + offset_table["TRAINER_ID"], 4)
 
 
-trainer_menu = Menu("Edit trainer data?")
-trainer_menu.add_option(f"Name", edit_name)
-trainer_menu.add_option(f"Gender", edit_gender)
-trainer_menu.add_option(f"ID SID", edit_id)
+class TrainerMenu(Menu):
+
+    def build(self):
+        self.set_title("Edit Trainer?")
+        self.add_option(f"Name ({get_trainer_name()})", self.edit_name)
+        self.add_option(f"Gender ({get_trainer_gender()})", self.edit_gender)
+        self.add_option(f"ID SID ({' '.join(get_trainer_id())})", self.edit_id)
+
+    def select(self, selection):
+        selection()
+
+    def edit_name(self):
+        new_name = input(f"Set name ({get_trainer_name()}): ")
+        if len(new_name) > 0:
+            set_trainer_name(new_name)
+            
+    def edit_gender(self):
+        gender = get_trainer_gender()
+        new_gender = input(f"Set gender M/F ({gender}): ")
+        if len(new_gender) > 0:
+            set_trainer_gender(new_gender)
+        
+    def edit_id(self):
+        public_id, secret_id = get_trainer_id()
+
+        new_id = input(f"Set ID SID ({public_id} {secret_id}): ")
+        split_ids = new_id.split(" ")
+
+        if len(split_ids) == 2:
+            new_public_id = int(split_ids[0])
+            new_secret_id = int(split_ids[1])
+            
+            set_trainer_id(new_public_id, new_secret_id)

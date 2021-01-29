@@ -73,25 +73,10 @@ DATA_ORDER_MAP = [ # 24
     "MAGE", "MAEG", "MEGA", "MEAG",
 ]
 
-from encoding import CHAR_TO_BYTE, BYTE_TO_CHAR
-from lookups import SPECIES_LOOKUP
-
 import savefile
-
-
-def pokemon_menu(pkmn):
-    print(pkmn)
-
-    species = input(f"Species: ({pkmn.get_species()}): ")
-    if species:
-        species_value = int(species)
-        new_species = SPECIES_LOOKUP[species_value]
-
-        print(f"Updating species to: {new_species}...")
-        pkmn.set_species(species_value)
-        
-        pkmn.write_encrypted_data()
-        pkmn.set_checksum()
+from encoding import BYTE_TO_CHAR
+from lookups import SPECIES_LOOKUP
+from menu import Menu
 
 
 class Pokemon():
@@ -210,3 +195,31 @@ class Pokemon():
         # This new 16-bit value is the checksum.
         return result
 
+
+class PokemonMenu(Menu):
+
+    def build(self, pkmn: Pokemon):
+        self.pkmn = pkmn
+
+        self.set_title("Edit Pokemon")
+        self.add_option(f"Nickname ({pkmn.get_nickname()})", self.edit_nickname)
+        self.add_option(f"Species ({pkmn.get_species()})", self.edit_species)
+
+    def close(self):
+        self.pkmn.write_encrypted_data()
+        self.pkmn.set_checksum()
+
+    def select(self, selection):
+        selection()
+
+    def edit_nickname(self):
+        pass
+
+    def edit_species(self):
+        print("Change species... use the decimal index number from the following link:")
+        print("https://bulbapedia.bulbagarden.net/wiki/List_of_Pok%C3%A9mon_by_index_number_(Generation_III)")
+        species = input(f"Species index number: ")
+    
+        if species:
+            species_value = int(species)
+            self.pkmn.set_species(species_value)

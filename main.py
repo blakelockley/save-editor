@@ -1,10 +1,23 @@
+import menu
 import savefile
+from box import BoxMenu
+from items import ItemMenu
+from party import PartyMenu
+from trainer import TrainerMenu, print_trainer_summary
 
-from menu import Menu
 
-from party import party_menu
-from box import box_menu
-from trainer import print_trainer_summary, trainer_menu
+class MainMenu(menu.Menu):
+
+    def build(self):
+        self.set_title("What would you like to edit?")
+        self.add_option("Trainer Info", TrainerMenu)
+        self.add_option("Items", ItemMenu)
+        self.add_option("Party Pokemon", PartyMenu)
+        self.add_option("Box Pokemon", BoxMenu)
+        self.set_quit_text("Save and Quit")
+
+    def select(self, selection):
+        selection().show()
 
 
 def main(args):
@@ -14,14 +27,9 @@ def main(args):
     savefile.load(filename)
     
     print_trainer_summary()
-    input("> [Enter] ")
+    input("> ")
 
-    main_menu = Menu("What would you like to edit?")
-    main_menu.add_option("Trainer Info", trainer_menu.show)
-    main_menu.add_option("Party Pokemon", party_menu)
-    main_menu.add_option("Box Pokemon", box_menu.show)
-    main_menu.set_quit_text("[Save and Quit]")
-    main_menu.show()
+    MainMenu().show()
     
     print("Saving changes...")
     savefile.write(filename)

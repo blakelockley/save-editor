@@ -3,25 +3,37 @@ POKEMON_SIZE = 80
 BOX_SIZE = POKEMON_SIZE * 30
 
 from menu import Menu
-from pokemon import Pokemon
+from pokemon import Pokemon, PokemonMenu
 
 import savefile
 
-def open_box(n):
-    index = n - 1
-    offset = savefile.section_table["PC_BUFFER_A"] + BOX_OFFSET + BOX_SIZE * index
+class BoxMenu(Menu):
+    
+    def build(self):
+        self.set_title("Select a Box")
 
-    pkmns = []
-    for pkmn_offset in range(offset, offset + BOX_SIZE, POKEMON_SIZE):
-        pkmn = Pokemon(pkmn_offset)
-        print(pkmn)
+        for n in range(1, 15):
+            self.add_option(f"Box {str(n).zfill(2)}", n)
 
-    input()
+    def select(self, selection):
+        index = selection - 1
+        offset = savefile.section_table["PC_BUFFER_A"] + BOX_OFFSET + BOX_SIZE * index
+
+        pkmns = []
+        for pkmn_offset in range(offset, offset + BOX_SIZE, POKEMON_SIZE):
+            pkmn = Pokemon(pkmn_offset)
+            pkmns.append(pkmn)
+
+        SelectedBoxMenu(pkmns).show()
 
 
-box_menu = Menu("Select Box")
-for n in range(1, 15):
-    box_menu.add_option(f"Box {str(n).zfill(2)}", n)
+class SelectedBoxMenu(Menu):
+    
+    def build(self, pkmns):
+        self.set_title("Select a Pokemon in this Box")
 
-box_menu.set_callback(open_box)
-box_menu.set_repeat_flag(False)
+        for pkmn in pkmns:
+            self.add_option(f"{pkmn}", pkmn)
+
+    def select(self, selection):
+        PokemonMenu(selection).show()
