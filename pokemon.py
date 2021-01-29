@@ -103,15 +103,22 @@ class Pokemon():
         self.decrypted_data = self.get_decrypted_data()
 
     def __str__(self):
-        return f"{self.get_nickname()} ({self.get_species()})"
+        try:    nickname = self.get_nickname()
+        except: nickname = "-----"
+
+        try:    species = self.get_species()
+        except: species = "??????????"
+
+        return f"{nickname} ({species})"
         
     def get_nickname(self):
         bs = savefile.bytes_at(self.offset + POKEMON_TABLE["NICKNAME"], 10)
 
         chars = []
-        for b in bs: # Trim input to 7 bytes
+        for b in bs:
+            if b == 255: break
             chars.append(BYTE_TO_CHAR[b])
-
+            
         return "".join(chars)
 
     def get_data_offset_table(self):
