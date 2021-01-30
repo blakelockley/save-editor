@@ -1,5 +1,4 @@
 class Menu:
-    
     def __init__(self, *args):
         self.title = "Menu"
         self.quit_text = "Close"
@@ -40,9 +39,9 @@ class Menu:
         print(chr(27) + "[2J")
 
     def show(self):
-        while True: 
+        while True:
             selection = self._loop()
-            
+
             if selection is None:
                 break
 
@@ -66,21 +65,21 @@ class Menu:
 
         while True:
             selection = input("> ")
-                
-            if (selection == "q"):
+
+            if selection == "q":
                 return None
 
             try:
                 index = int(selection) - 1
                 if not (0 <= index < len(self.options)):
                     raise ValueError
-                  
+
             except ValueError:
                 continue
 
             break
-        
+
         text, option = self.options[index]
         print(text)
-        
+
         return option

@@ -7,8 +7,8 @@ from pokemon import Pokemon, PokemonMenu
 
 import savefile
 
+
 class BoxMenu(Menu):
-    
     def build(self):
         self.set_title("Select a Box")
 
@@ -28,7 +28,6 @@ class BoxMenu(Menu):
 
 
 class SelectedBoxMenu(Menu):
-    
     def build(self, pkmns):
         self.set_title("Select a Pokemon in this Box")
 

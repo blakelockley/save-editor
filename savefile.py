@@ -7,10 +7,13 @@ section_table = None
 
 
 VERSION_NAMES = {
-    "R": "RS", "S": "RS", "RS": "RS",
+    "R": "RS",
+    "S": "RS",
+    "RS": "RS",
     "RUBY": "RS",
     "SAPHIRE": "RS",
-    "FR": "FRLG", "LG": "FRLG",
+    "FR": "FRLG",
+    "LG": "FRLG",
     "FIRE_RED": "FRLG",
     "LEAF_GREEN": "FRLG",
     "E": "E",
@@ -70,14 +73,14 @@ def load(filename):
 
     with open(filename, "rb") as f:
         data = bytearray(f.read())
-    
+
     set_save_offset()
     set_section_table()
 
 
-def write(filename):    
+def write(filename):
     evaluate_checksums()
-    
+
     with open(filename, "wb") as f:
         f.write(data)
 
@@ -115,32 +118,32 @@ def calculate_checksum(offset):
     # The number of bytes to process in this manner is determined by Section ID.
     # size
     size = SECTION_SIZE_TABLE.get(data[offset + SECTION_ID], 0)
-    
+
     # Initialize a 32-bit checksum variable to zero.
     result = 0
 
-    # Read 4 bytes at a time as 32-bit word (little-endian) and add it to the variable.    
+    # Read 4 bytes at a time as 32-bit word (little-endian) and add it to the variable.
     for index in range(offset, offset + size, 4):
         result = result + value_at(index, 4)
-        result %= 2**32 # 32-bit word
+        result %= 2 ** 32  # 32-bit word
 
     # Take the upper 16 bits of the result, and add them to the lower 16 bits of the result.
-    result = result // 2**16 + result % 2**16
+    result = result // 2 ** 16 + result % 2 ** 16
 
     # This new 16-bit value is the checksum.
-    return result % 2**16
+    return result % 2 ** 16
 
 
 def evaluate_checksums():
     offset = SAVE_A_OFFEST
-    
-    while offset < TOTAL_SIZE:        
+
+    while offset < TOTAL_SIZE:
         current = value_at(offset + SECTION_CHECKSUM, 2)
         checksum = calculate_checksum(offset)
 
-        match = (current == checksum)
+        match = current == checksum
         if not match:
             print("Correcting checksum for section...", "0x" + hex(offset)[2:].zfill(6))
             set_value_at(offset + SECTION_CHECKSUM, checksum, 2)
-        
+
         offset += SECTION_SIZE

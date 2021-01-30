@@ -7,7 +7,6 @@ from trainer import TrainerMenu, print_trainer_summary
 
 
 class MainMenu(menu.Menu):
-
     def build(self):
         self.set_title("What would you like to edit?")
         self.add_option("Trainer Info", TrainerMenu)
@@ -22,19 +21,20 @@ class MainMenu(menu.Menu):
 
 def main(args):
     filename = args[1]
-    
+
     savefile.set_version("RUBY")
     savefile.load(filename)
-    
+
     print_trainer_summary()
     input("> ")
 
     MainMenu().show()
-    
+
     print("Saving changes...")
     savefile.write(filename)
 
 
 if __name__ == "__main__":
     import sys
+
     main(sys.argv)
