@@ -8,6 +8,8 @@ from maker import PokemonMaker
 
 import savefile
 
+# TODO: BOX Data is not contiguous in memory, other PC buffer sections need to be accounted for in offset calculation
+
 
 class BoxMenu(Menu):
     def build(self):
@@ -36,3 +38,19 @@ class SelectedBoxMenu(Menu):
             PokemonMenu(selection).show()
         else:
             PokemonMaker(selection.offset).run()
+
+
+class WipeBoxMenu(Menu):
+    def build(self):
+        self.set_title("Wipe all box data? Are you sure?")
+        self.add_option("Yes", True)
+        self.set_quit_text("No")
+
+    def select(self, selection):
+        if not selection:
+            return
+
+        offset = savefile.section_table["PC_BUFFER_A"] + BOX_OFFSET
+        bs = [0x00 for _ in range(33600 // 14 * 2)]
+
+        savefile.set_bytes_at(offset, bs)
