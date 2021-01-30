@@ -47,8 +47,7 @@ def print_trainer_summary():
     print("Trainer Name:", name + f" ({gender})")
     
     id = get_trainer_id()
-    print("Trainer ID:", id)
-
+    print("Trainer ID:", *id)
 
 def get_trainer_name():
     offset_table = VERSION_TABLE[savefile.version]
@@ -124,26 +123,27 @@ class TrainerMenu(Menu):
         self.set_title("Edit Trainer?")
         self.add_option(f"Name ({get_trainer_name()})", self.edit_name)
         self.add_option(f"Gender ({get_trainer_gender()})", self.edit_gender)
-        self.add_option(f"ID SID ({' '.join(get_trainer_id())})", self.edit_id)
+        
+        public_id, secret_id = get_trainer_id()
+        self.add_option(f"ID ({public_id} {secret_id})", self.edit_id)
 
     def select(self, selection):
         selection()
 
     def edit_name(self):
-        new_name = input(f"Set name ({get_trainer_name()}): ")
+        new_name = input(f"Set name: ")
         if len(new_name) > 0:
             set_trainer_name(new_name)
             
     def edit_gender(self):
-        gender = get_trainer_gender()
-        new_gender = input(f"Set gender M/F ({gender}): ")
+        new_gender = input(f"Set gender M/F: ")
         if len(new_gender) > 0:
             set_trainer_gender(new_gender)
         
     def edit_id(self):
         public_id, secret_id = get_trainer_id()
 
-        new_id = input(f"Set ID SID ({public_id} {secret_id}): ")
+        new_id = input(f"Set ID: ")
         split_ids = new_id.split(" ")
 
         if len(split_ids) == 2:
