@@ -74,7 +74,7 @@ DATA_ORDER_MAP = [ # 24
 ]
 
 import savefile
-from encoding import BYTE_TO_CHAR
+from encoding import BYTE_TO_CHAR, CHAR_TO_BYTE
 from lookups import SPECIES_LOOKUP
 from menu import Menu
 
@@ -105,6 +105,15 @@ class Pokemon():
             chars.append(BYTE_TO_CHAR[b])
             
         return "".join(chars)
+        
+    def set_nickname(self, new_name):
+        bs = [0xFF for _ in range(10)]
+        
+        for i in range(len(new_name[:10])):
+            bs[i] = CHAR_TO_BYTE[new_name[i]]
+
+        offset = self.offset + POKEMON_TABLE["NICKNAME"]
+        return savefile.set_bytes_at(offset, bs)
 
     def get_data_offset_table(self):
         p_value = savefile.value_at(self.offset + POKEMON_TABLE["PERSONALITY_VALUE"], 4)
@@ -213,7 +222,9 @@ class PokemonMenu(Menu):
         selection()
 
     def edit_nickname(self):
-        pass
+        new_name = input(f"Set nickname: ")
+        if len(new_name) > 0:
+            self.pkmn.set_nickname(new_name)
 
     def edit_species(self):
         print("Change species... use the decimal index number from the following link:")
