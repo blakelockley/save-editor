@@ -149,8 +149,6 @@ class TrainerMenu(Menu):
             set_trainer_gender(new_gender)
 
     def edit_id(self):
-        public_id, secret_id = get_trainer_id()
-
         new_id = input(f"Set ID: ")
         split_ids = new_id.split(" ")
 

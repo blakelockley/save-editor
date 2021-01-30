@@ -4,6 +4,7 @@ BOX_SIZE = POKEMON_SIZE * 30
 
 from menu import Menu
 from pokemon import Pokemon, PokemonMenu
+from maker import PokemonMaker
 
 import savefile
 
@@ -16,23 +17,22 @@ class BoxMenu(Menu):
             self.add_option(f"Box {str(n).zfill(2)}", n)
 
     def select(self, selection):
-        index = selection - 1
-        offset = savefile.section_table["PC_BUFFER_A"] + BOX_OFFSET + BOX_SIZE * index
-
-        pkmns = []
-        for pkmn_offset in range(offset, offset + BOX_SIZE, POKEMON_SIZE):
-            pkmn = Pokemon(pkmn_offset)
-            pkmns.append(pkmn)
-
-        SelectedBoxMenu(pkmns).show()
+        SelectedBoxMenu(selection).show()
 
 
 class SelectedBoxMenu(Menu):
-    def build(self, pkmns):
+    def build(self, selection):
         self.set_title("Select a Pokemon in this Box")
 
-        for pkmn in pkmns:
+        index = selection - 1
+        offset = savefile.section_table["PC_BUFFER_A"] + BOX_OFFSET + BOX_SIZE * index
+
+        for pkmn_offset in range(offset, offset + BOX_SIZE, POKEMON_SIZE):
+            pkmn = Pokemon(pkmn_offset)
             self.add_option(f"{pkmn}", pkmn)
 
     def select(self, selection):
-        PokemonMenu(selection).show()
+        if selection.is_valid:
+            PokemonMenu(selection).show()
+        else:
+            PokemonMaker(selection.offset).run()

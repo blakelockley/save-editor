@@ -440,3 +440,13 @@ SPECIES_LOOKUP = {
     438: "Unown",
     439: "Unown",
 }
+
+LANGUAGE_LOOKUP = {
+    "JAPANESE": 0x0201,
+    "ENGLISH": 0x0202,
+    "FRENCH": 0x0203,
+    "ITALIAN": 0x0204,
+    "GERMAN": 0x0205,
+    "KOREAN": 0x0206,
+    "SPANISH": 0x0207,
+}

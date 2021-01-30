@@ -1,4 +1,5 @@
 CHAR_TO_BYTE = {
+    " ": 0x00,
     "0": 0xA1,
     "1": 0xA2,
     "2": 0xA3,
@@ -64,6 +65,7 @@ CHAR_TO_BYTE = {
 }
 
 BYTE_TO_CHAR = {
+    0x00: " ",
     0xA1: "0",
     0xA2: "1",
     0xA3: "2",
