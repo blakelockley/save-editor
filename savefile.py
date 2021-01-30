@@ -63,11 +63,6 @@ def printb(offset, size=1, *, end="\n"):
     print(end=end)
 
 
-def set_version(value):
-    global version
-    version = VERSION_NAMES[value]
-
-
 def load(filename):
     global data
 
@@ -76,6 +71,8 @@ def load(filename):
 
     set_save_offset()
     set_section_table()
+
+    determine_version()
 
 
 def write(filename):
@@ -108,6 +105,24 @@ def set_section_table():
         section_table[SECTION_NAME_TABLE[section_id]] = offset
 
         offset += SECTION_SIZE
+
+
+def determine_version():
+    global version
+
+    offset = section_table["TRAINER_INFO"] + 0x00AC
+    value = value_at(offset, 4)
+
+    if value == 0:
+        version = "RUBY_SAPHIRE"
+
+    elif value == 1:
+        version = "FIRERED_LEAFGREEN"
+
+    else:
+        version = "EMERALD"
+
+    print("Version:", version)
 
 
 def calculate_checksum(offset):

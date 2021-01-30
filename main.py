@@ -22,7 +22,6 @@ class MainMenu(menu.Menu):
 def main(args):
     filename = args[1]
 
-    savefile.set_version("RUBY")
     savefile.load(filename)
 
     print_trainer_summary()
