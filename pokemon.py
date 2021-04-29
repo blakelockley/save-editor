@@ -104,6 +104,14 @@ from lookups import LANGUAGE_LOOKUP, SPECIES_LOOKUP
 from menu import Menu
 
 
+def set_bit(value, bit):
+    return value | (1 << (bit - 1))
+
+
+def clear_bit(value, bit):
+    return value & ~(1 << (bit - 1))
+
+
 class Pokemon:
     def __init__(self, offset):
         self.offset = offset
@@ -175,6 +183,17 @@ class Pokemon:
 
         savefile.set_value_at(offset, new_public_id, 2)
         savefile.set_value_at(offset + 2, new_secret_id, 2)
+
+    def get_ot_name(self):
+        bs = savefile.bytes_at(self.offset + POKEMON_TABLE["OT_NAME"], 7)
+
+        chars = []
+        for b in bs:
+            if b == 255:
+                break
+            chars.append(BYTE_TO_CHAR.get(b, "?"))
+
+        return "".join(chars)
 
     def set_ot_name(self, new_name):
         bs = [0xFF for _ in range(7)]
@@ -438,6 +457,7 @@ class PokemonMenu(Menu):
         self.add_option(f"Nickname ({pkmn.get_nickname()})", self.edit_nickname)
         self.add_option(f"Species ({pkmn.get_species()})", self.edit_species)
         self.add_option(f"EXP ({pkmn.get_experience()})", self.edit_experience)
+        self.add_option(f"Oringal Trainer ({pkmn.get_ot_name()})", self.edit_ot)
 
     def close(self):
         self.pkmn.write_encrypted_data()
@@ -466,3 +486,18 @@ class PokemonMenu(Menu):
         new_exp = input(f"Set EXP: ")
         if len(new_exp) > 0:
             self.pkmn.set_experience(int(new_exp))
+
+    def edit_ot(self):
+        new_name = input(f"OT Name: ")
+        if len(new_name) > 0:
+            self.pkmn.set_ot_name(new_name)
+
+        ot_gender = input(f"OT Gender (M)/F: ")
+        origins = self.pkmn.get_origins_info()
+
+        if ot_gender == "F":
+            origins = set_bit(origins, 16)
+        else:
+            origins = clear_bit(origins, 16)
+
+        self.pkmn.set_origins_info(origins)
